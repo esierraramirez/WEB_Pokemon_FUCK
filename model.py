@@ -18,5 +18,5 @@ class PokemonBase(BaseModel):
 class PokemonResponse(PokemonBase):
     id : int = Field(..., gt=0, exclude=True)
 
-class PokemonUpdate(PokemonBase):
+class PokemonUpdate(BaseModel):
     level: int = Field(..., gt=0, le=100)
