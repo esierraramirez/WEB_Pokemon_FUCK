@@ -75,6 +75,35 @@ async def update_pokemon(id: int, pokemon_update: PokemonUpdate):
 
     return PokemonResponse(**updated_pokemon)
 
+
+@app.delete("/pokemon/{id}")
+async def delete_pokemon(id: int):
+    if not os.path.exists(CSV_FILE):
+        raise HTTPException(status_code=404, detail="Pokedex vacía")
+
+    pokemons = []
+    found = False
+
+    with open(CSV_FILE, newline="") as file:
+        reader = csv.DictReader(file)
+        fieldnames = reader.fieldnames or ["id", "name", "tipo", "level"]
+        for row in reader:
+            if int(row["id"]) == id:
+                found = True
+                continue
+            pokemons.append(row)
+
+    if not found:
+        raise HTTPException(status_code=404, detail="Pokemon no capturado aún")
+
+    with open(CSV_FILE, "w", newline="") as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(pokemons)
+
+    return {"detail": "Pokemon eliminado de la pokedex"}
+
+
 @app.get("/")
 async def root():
     return {"message": "Hello in Pycharm"}
